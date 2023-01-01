@@ -20,6 +20,13 @@
                 "default": 5000,
                 "required": true
             },
+            "actAsBulb": {
+                "title": "Add lightbulb instead of a switch",
+                "description": "This allows setting time by percentage when 1% = `delay` (e.g. `\"delay\": 60000` means 1% = 1 minute)",
+                "type": "boolean",
+                "default": false,
+                "required": false
+            },
             "sensorType": {
                 "title": "Trigger Sensor Type",
                 "description": "The sensor type that will trigger when the time has ended (\"None\" for no sensor, \"Motion Sensor\" is default)",
