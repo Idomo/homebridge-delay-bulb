@@ -40,6 +40,7 @@ If you don't use Homebridge UI or HOOBS, keep reading:
 | `accessory`             | always `"DelaySwitch"`               |     ✓    |     -    |  String  |
 | `name`                  | Name for your accessory              |     ✓    |     -    |  String  |
 | `delay`                 |  Delay/Timer in milliseconds         |     ✓    |     -    |  Integer |
+| `actAsBulb`             |  Add lightbulb instead of a switch, that allows setting time by percentage <br>**1% = `delay`** (e.g. `"delay": 60000` means 1% = 1 minute)         |         | `false` |  Boolean |
 | `sensorType`            |  The sensor type that will trigger when the time has ended (`null` for no sensor)         |         | `"motion"` |  Integer |
 | `flipSensorState`       | Flips the trigger sensor state (close/open, detected/not detected)   |          |   `false`  |  Boolean |
 | `startOnReboot`         |  When set to `true`, the switch will be turned ON and start the timer when Homebridge restarts        |       |  `false` |  Boolean  |
