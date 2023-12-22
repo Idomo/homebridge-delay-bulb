@@ -6,6 +6,7 @@ module.exports = function (homebridge) {
     homebridge.registerAccessory("homebridge-delay-switch", "DelaySwitch", delaySwitch);
 }
 
+
 function delaySwitch(log, config, api) {
     let UUIDGen = api.hap.uuid;
 
@@ -26,7 +27,8 @@ function delaySwitch(log, config, api) {
     this.brightness = 0;
     this.sensorTriggered = 0;
     this.uuid = UUIDGen.generate(this.name)
-  
+
+
     switch (this.delayUnit) {
         case 's':
             this.delayTime = this.delay * 1000;
@@ -94,6 +96,7 @@ delaySwitch.prototype.getServices = function () {
         .setCharacteristic(Characteristic.SerialNumber, this.uuid);
 
     this.mainService = this.createMainService(this.name);
+
     this.mainService.getCharacteristic(Characteristic.On)
         .on('get', this.getOn.bind(this))
         .on('set', this.setOn.bind(this))
@@ -104,7 +107,7 @@ delaySwitch.prototype.getServices = function () {
     
     var services = [informationService, this.mainService]
     
-    if (!this.disableSensor){
+    if (!this.disableSensor) {
         switch (this.sensorType) {
             case 'contact':
                 this.sensorService = new Service.ContactSensor(this.name + ' Trigger');
@@ -137,7 +140,7 @@ delaySwitch.prototype.getServices = function () {
 }
 
 delaySwitch.prototype.updateBrightness = function () {
-    const unit = this.delay;
+    const unit = this.delayTime;
     this.timer = setTimeout(() => {
         this.brightness = this.brightness - 1;
 
