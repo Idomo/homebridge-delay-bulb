@@ -11,19 +11,51 @@ function delaySwitch(log, config, api) {
 
     this.log = log;
     this.name = config['name'];
-    this.delay = config['delay'];
+    this.delay = config['delay'] || 0;
+    this.delayUnit = config['delayUnit'] || "ms";
+    this.debug = config.debug || false
     this.sensorType = config['sensorType'];
     if (typeof this.sensorType === 'undefined')
         this.sensorType = 'motion'
     this.flipSensor = config['flipSensorState'];
-    this.disableSensor = config['disableSensor'] || !config['sensorType'];
-    this.startOnReboot = config['startOnReboot'];
+    this.disableSensor = config['disableSensor'] || !config['sensorType'] || this.delay === 0;
+    this.startOnReboot = config['startOnReboot'] || false;
     this.actAsBulb = config['actAsBulb'] || false;
     this.timer;
     this.switchOn = false;
     this.brightness = 0;
     this.sensorTriggered = 0;
     this.uuid = UUIDGen.generate(this.name)
+  
+    switch (this.delayUnit) {
+        case 's':
+            this.delayTime = this.delay * 1000;
+            break;
+        case 'm':
+            this.delayTime = this.delay * 60 * 1000;
+            break;
+        case 'h':
+            this.delayTime = this.delay * 60 * 60 * 1000;
+            break;
+        case 'd':
+            this.delayTime = this.delay * 24 * 60 * 60 * 1000;
+            break;
+        default:
+            this.delayTime = this.delay;
+            break;
+    }
+
+    // define debug method to output debug logs when enabled in the config
+    this.log.easyDebug = (...content) => {
+        if (this.debug) {
+            this.log(content.reduce((previous, current) => {
+                return previous + ' ' + current
+            }))
+        } else
+            this.log.debug(content.reduce((previous, current) => {
+                return previous + ' ' + current
+            }))
+    }
 
     delaySwitch.prototype.createMainService = function (name) {
         if (this.mainService) return this.mainService;
@@ -43,12 +75,12 @@ function delaySwitch(log, config, api) {
 
     this.getSensorState = () => {
         state = this.sensorTriggered
-        if (this.flipSensor && sensorType === 'motion')
+        if (this.flipSensor && this.sensorType === 'motion')
             return !state
         if (this.sensorType === 'motion')
             return !!state
         if (this.flipSensor)
-            return state^1
+            return state ^ 1
         return state
     }
 }
@@ -58,14 +90,14 @@ delaySwitch.prototype.getServices = function () {
 
     informationService
         .setCharacteristic(Characteristic.Manufacturer, "Delay Switch")
-        .setCharacteristic(Characteristic.Model, `Delay-${this.delay}ms`)
+        .setCharacteristic(Characteristic.Model, `Delay-${this.delay}${this.delayUnit}`)
         .setCharacteristic(Characteristic.SerialNumber, this.uuid);
 
     this.mainService = this.createMainService(this.name);
-
     this.mainService.getCharacteristic(Characteristic.On)
         .on('get', this.getOn.bind(this))
-        .on('set', this.setOn.bind(this));
+        .on('set', this.setOn.bind(this))
+        .updateValue(this.startOnReboot)
 
     if (this.startOnReboot)
         this.mainService.setCharacteristic(Characteristic.On, true)
@@ -81,6 +113,10 @@ delaySwitch.prototype.getServices = function () {
             case 'occupancy':
                 this.sensorService = new Service.OccupancySensor(this.name + ' Trigger');
                 this.sensorCharacteristic = Characteristic.OccupancyDetected
+                break;
+            case 'leak':
+                this.sensorService = new Service.LeakSensor(this.name + ' Trigger');
+                this.sensorCharacteristic = Characteristic.LeakDetected
                 break;
             default:
                 this.sensorService = new Service.MotionSensor(this.name + ' Trigger');
@@ -148,22 +184,36 @@ delaySwitch.prototype.timeout = function () {
 
 delaySwitch.prototype.setOn = function (on, callback) {
     if (!on) {
-        this.log('Stopping the Timer');
-
+        this.log.easyDebug('Stopping the Timer');
         this.switchOn = false;
         clearTimeout(this.timer);
         this.sensorTriggered = 0;
         if (!this.disableSensor) 
             this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
-        } else {
-        this.log('Starting the Timer');
+    } else {
         this.switchOn = true;
 
         if (!this.actAsBulb) {
             clearTimeout(this.timer);
-            this.timer = setTimeout(function () {
-                this.timeout();
-            }.bind(this), this.delay);
+            if (this.delay > 0) {
+                this.log.easyDebug('Starting the Timer');
+                this.timer = setTimeout(function () {
+                    this.log.easyDebug('Time is Up!');
+                    this.switchService.getCharacteristic(Characteristic.On).updateValue(false);
+                    this.switchOn = false;
+
+                    if (!this.disableSensor) {
+                        this.sensorTriggered = 1;
+                        this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
+                        this.log.easyDebug('Triggering Sensor');
+                        setTimeout(function () {
+                            this.sensorTriggered = 0;
+                            this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
+                        }.bind(this), 3000);
+                    }
+
+                }.bind(this), this.delayTime);
+            }
         }
     }
 

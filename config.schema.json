@@ -14,11 +14,25 @@
                 "required": true
             },
             "delay": {
-                "title": "Delay Time in Milliseconds",
-                "description": "Amount of time in milliseconds to wait since the switch is turned ON until the switch will be turned OFF and the sensor will trigger",
+                "title": "Delay Time",
+                "description": "Delay to wait until the switch will be turned OFF. Each activation of the switch will reactivate timer (time will restart). 0 - Timer and sensor are disabled.",
                 "type": "integer",
                 "default": 5000,
                 "required": true
+            },
+            "delayUnit": {
+                "title": "Delay Time Unit",
+                "description": "Delay Time Unit (milliseconds/seconds/minutes/hours/days).",
+                "type": "string",
+                "default": "ms",
+                "required": true,
+                "oneOf": [
+                    { "title": "milliseconds", "enum": ["ms"] },
+                    { "title": "seconds", "enum": ["s"] },
+                    { "title": "minutes", "enum": ["m"] },
+                    { "title": "hours", "enum": ["h"] },
+                    { "title": "days", "enum": ["d"] }
+                ]
             },
             "actAsBulb": {
                 "title": "Add lightbulb instead of a switch",
@@ -29,30 +43,101 @@
             },
             "sensorType": {
                 "title": "Trigger Sensor Type",
-                "description": "The sensor type that will trigger when the time has ended (\"None\" for no sensor, \"Motion Sensor\" is default)",
+                "description": "Adds an optional sensor that will be activated when the timer comes to an end.",
                 "type": "string",
                 "default": "motion",
                 "required": false,
                 "oneOf": [
                   { "title": "Motion Sensor", "enum": ["motion"] },
                   { "title": "Contact Sensor", "enum": ["contact"] },
-                  { "title": "Occupancy Sensor", "enum": ["occupancy"] }
+                  { "title": "Occupancy Sensor", "enum": ["occupancy"] },
+                  { "title": "Leak Sensor", "enum": ["leak"] }
                 ]
             },
             "flipSensorState": {
                 "title": "Flip Sensor State",
-                "description": "Enable to flip the trigger sensor state (close/open, detected/not detected)",
+                "description": "Enable to flip the trigger sensor state (close/open, detected/not detected).",
                 "type": "boolean",
                 "default": false,
                 "required": false
             },
             "startOnReboot": {
                 "title": "Turn ON when Homebridge Restarts",
-                "description": "When Enabled, the switch will be turned ON and start the timer when HomeBridge server restarts",
+                "description": "Activate switch after Homebridge restart.",
                 "type": "boolean",
                 "default": false,
                 "required": false
+            },
+            "debug": {
+              "title": "Enable Debug Logs",
+              "description": "Produce extra logs for debugging purposes",
+              "type": "boolean",
+              "default": false,
+              "required": false
             }
         }
-    }
+    },
+    "layout": [  
+      {
+        "type": "fieldset",
+        "title": "Basic settings",
+        "description": "",
+        "expandable": true,
+        "expanded": true,
+        "items": [
+          {
+            "type": "flex",
+            "flex-flow": "row wrap",
+            "items": ["name"]
+          },
+          {
+              "type": "flex",
+              "flex-flow": "row wrap",
+              "items": ["startOnReboot"]
+          }
+        ]
+      },
+      {
+        "type": "fieldset",
+        "title": "Timer",
+        "description": "",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": "flex",
+            "flex-flow": "row wrap",
+            "items": ["delay", "delayUnit"]
+          }
+        ]
+      },
+      {
+        "type": "fieldset",
+        "title": "Trigger Sensor",
+        "description": "",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": "flex",
+            "flex-flow": "row wrap",
+            "items": ["sensorType", "flipSensorState"]
+          }
+        ]
+      },
+      {
+        "type": "fieldset",
+        "title": "Logs",
+        "description": "",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": "flex",
+            "flex-flow": "row wrap",
+            "items": ["debug"]
+          }
+        ]
+      }
+    ]
   }

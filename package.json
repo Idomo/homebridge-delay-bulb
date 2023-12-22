@@ -1,7 +1,7 @@
 {
   "name": "homebridge-delay-switch",
-  "version": "3.0.3",
-  "description": "Delay switches for Homebridge: https://github.com/nfarina/homebridge",
+  "version": "3.2.4",
+  "description": "Delay switches for Homebridge",
   "license": "MIT",
   "keywords": [
     "homebridge-plugin",
@@ -14,11 +14,11 @@
     "url": "git://github.com/nitaybz/homebridge-delay-switch.git"
   },
   "bugs": {
-    "url": "http://github.com/nitaybz/homebridge-delay-switch/issues"
+    "url": "https://github.com/nitaybz/homebridge-delay-switch/issues"
   },
   "engines": {
-    "node": ">=0.12.0",
-    "homebridge": ">=0.2.0"
+    "node": ">=15.0.0",
+    "homebridge": ">=1.5.0"
   },
   "funding": [
     {
@@ -33,5 +33,13 @@
       "type": "kofi",
       "url": "https://ko-fi.com/nitaybz"
     }
-  ]
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": ""
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0"
+  }
 }
