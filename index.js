@@ -170,15 +170,15 @@ delaySwitch.prototype.setBrightness = function (brightness, callback) {
 }
 
 delaySwitch.prototype.timeout = function () {
-    this.log('Time is Up!');
-    this.mainService.getCharacteristic(Characteristic.On).updateValue(false);
+    this.log.easyDebug('Time is Up!');
+    this.switchService.getCharacteristic(Characteristic.On).updateValue(false);
     this.switchOn = false;
 
     if (!this.disableSensor) {
         this.sensorTriggered = 1;
         this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
-        this.log('Triggering Sensor');
-        setTimeout(function() {
+        this.log.easyDebug('Triggering Sensor');
+        setTimeout(function () {
             this.sensorTriggered = 0;
             this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
         }.bind(this), 3000);
@@ -201,20 +201,7 @@ delaySwitch.prototype.setOn = function (on, callback) {
             if (this.delay > 0) {
                 this.log.easyDebug('Starting the Timer');
                 this.timer = setTimeout(function () {
-                    this.log.easyDebug('Time is Up!');
-                    this.switchService.getCharacteristic(Characteristic.On).updateValue(false);
-                    this.switchOn = false;
-
-                    if (!this.disableSensor) {
-                        this.sensorTriggered = 1;
-                        this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
-                        this.log.easyDebug('Triggering Sensor');
-                        setTimeout(function () {
-                            this.sensorTriggered = 0;
-                            this.sensorService.getCharacteristic(this.sensorCharacteristic).updateValue(this.getSensorState());
-                        }.bind(this), 3000);
-                    }
-
+                    this.timeout();
                 }.bind(this), this.delayTime);
             }
         }
