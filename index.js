@@ -171,7 +171,7 @@ delaySwitch.prototype.setBrightness = function (brightness, callback) {
 
 delaySwitch.prototype.timeout = function () {
     this.log.easyDebug('Time is Up!');
-    this.switchService.getCharacteristic(Characteristic.On).updateValue(false);
+    this.mainService.getCharacteristic(Characteristic.On).updateValue(false);
     this.switchOn = false;
 
     if (!this.disableSensor) {
