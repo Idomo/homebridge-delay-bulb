@@ -145,7 +145,7 @@ delaySwitch.prototype.updateBrightness = function () {
         this.brightness = this.brightness - 1;
 
         this.mainService.getCharacteristic(Characteristic.Brightness).updateValue(this.brightness);
-        this.log(`${this.brightness} remains`);
+        this.log.easyDebug(`${this.brightness} remains`);
 
         if (this.brightness <= 0) {
             this.timeout();
@@ -156,7 +156,7 @@ delaySwitch.prototype.updateBrightness = function () {
 }
 
 delaySwitch.prototype.setBrightness = function (brightness, callback) {
-    this.log(`Set the Timer with ${brightness}%`);
+    this.log.easyDebug(`Set the Timer with ${brightness}%`);
 
     this.brightness = brightness;
 
